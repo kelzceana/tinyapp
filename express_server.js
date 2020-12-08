@@ -28,11 +28,19 @@ app.get('/urls/new', (req, res) => {
 app.get('/urls/:shortURL', (req, res) => {
   const templatedVars = {shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] }
   res.render('urls_show', templatedVars)
+  
+})
+app.get('/u/:shortURL', (req, res) => {
+  const longURL = urlDatabase[req.params.shortURL] 
+  res.redirect(longURL)
+  
 })
 
 app.post('/urls', (req, res) => {
-  console.log(req.body)
-  res.send('received new url')
+  const shortURL = generateRandomString();
+  res.redirect(`/u/${shortURL}`)
+  urlDatabase[shortURL] = req.body.longURL;
+  console.log (urlDatabase);
 })
 
 app.listen(PORT, () => {
@@ -40,13 +48,13 @@ app.listen(PORT, () => {
 });
 
 
-const generateRandomString = function(num) {
+const generateRandomString = function() {
   const letter = 'abcdefghijklmnopqrstuvwxyz'.split('')
   const number = '123456790'.split('')
   let holder = '';
   let newStr = '';
 
-  for (let i = 0; i < num; i++){
+  for (let i = 0; i < 6; i++){
     holder = Math.floor(Math.random() * 25);
     if (holder > 8) {
       newStr += letter[holder];
