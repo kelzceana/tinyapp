@@ -48,6 +48,24 @@ app.post('/urls/:shortURL/delete', (req, res) => {
   delete urlDatabase[req.params.shortURL]
   res.redirect('/urls')
 })
+
+app.post('/urls/:shortURL', (req, res) => {
+  const templatedVars = {shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] }
+  res.render('urls_show', templatedVars)
+  
+})
+
+app.post("/urls/:id", (req, res) => {
+  const userID = req.session.user_id;
+  const userUrls = urlsForUser(userID, urlDatabase);
+  if (Object.keys(userUrls).includes(req.params.id)) {
+    const shortURL = req.params.id;
+    urlDatabase[shortURL].longURL = req.body.newURL;
+    res.redirect('/urls');
+  } else {
+    res.status(401).send("You do not have authorization to edit this short URL.");
+  }
+});
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`)
 });
