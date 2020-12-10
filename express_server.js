@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const bcrypt = require('bcrypt');
 var cookies = require('cookie-parser')
 const app = express();
 const PORT = 8080;
@@ -13,12 +14,12 @@ const users = {
   "userRandomID": {
     id: 'userRandomID',
     email: 'user@example.com',
-    password: 'purple-monkey-dinosaur'
+    password: bcrypt.hashSync('purple-monkey-dinosaur', 10)
   },
   "user2RandomID": {
     id: "user2RandomID", 
     email: "user2@example.com", 
-    password: "dishwasher-funk"
+    password: bcrypt.hashSync("dishwasher-funk", 10) 
   }
 }
 
@@ -69,7 +70,7 @@ app.post('/login', (req, res) => {
     res.statusCode = 403;
     res.send("User cannot be found")
   } else if (emailLookUp(email, users)) {
-    if (users[user_id].password !== password) {
+    if (!bcrypt.compareSync(password, users[user_id].password)) {
       res.statusCode = 403;
       res.send("Username or password does not match")
     } else {
@@ -101,7 +102,6 @@ app.post('/register', (req, res) => {
   const user_id = generateRandomString(4);
   const userEmail = req.body.email;
   const userPassword = req.body.password;
-  
   if (!userEmail || !userPassword) {
     res.statusCode = 400;
     res.send(`${res.statusCode} Bad Request response no input`)
@@ -112,7 +112,7 @@ app.post('/register', (req, res) => {
     users[user_id] = {
       id: user_id,
       email: req.body.email,
-      password: req.body.password
+      password: bcrypt.hashSync(req.body.password, 10)
     }
      res.cookie('user_id', user_id);
      res.redirect('/urls');
